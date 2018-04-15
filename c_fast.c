@@ -1,5 +1,11 @@
 
-#include <stdio.h>
+#include <unistd.h>
+#include <stdlib.h>
+#include <string.h>
+
+const char fizz[] = "fizz";
+const char buzz[] = "buzz";
+const char nl[] = "\n";
 
 int main(int argc, char **argv) {
     int trigger1 = 3;
@@ -9,19 +15,19 @@ int main(int argc, char **argv) {
     while(i <= 100) {
         int flag = 0;
         if (i == trigger1) {
-            printf("fizz");
+            write(1,fizz,sizeof(fizz));
             trigger1 += 3;
             flag = 1;
         }
         if (i == trigger2) {
-            printf("buzz");
+            write(1,buzz,sizeof(buzz));
             trigger2 += 5;
             flag = 1;
         }
         if (!flag) {
-            printf("%i",i);
+            write(1,"xxx",3);
         }
-        printf("\n");
+        write(1,nl,sizeof(nl));
         i++;
     }
 }
