@@ -17,25 +17,45 @@ void flush(struct buffer *buf) {
 
 void append(struct buffer *buf, const char *data) {
     while (*data) {
-        // FIXME - should cmp pos with sizeof(data) and flush() if needed
         buf->data[ buf->pos++ ] = *data++;
+        // FIXME - should flush() if pos == sizeof(data)
     }
 }
 
-char _itoabuf[10];
-char *itoa(int i, int radix) {
-    char *p = _itoabuf + sizeof(_itoabuf);
-    *p = 0;
-    do {
-        *--p = i%radix + '0'; // FIXME radix>10
-        i /= radix;
-    } while(i);
-    return p;
+struct istr {
+    int msd;
+    char data[10];
+};
+
+void istr_init(struct istr *buf) {
+    int msd = sizeof(buf->data);
+    buf->data[ --msd ] = 0;
+    while(msd) {
+        buf->data[ --msd ] = '0';
+    }
+    buf->msd = sizeof(buf->data)-2;
+}
+
+void istr_inc(struct istr *buf) {
+    int digit = sizeof(buf->data)-2;
+    while (buf->data[digit] == '9') {
+        buf->data[digit] = '0';
+        digit--; // FIXME - should handle underflow
+        buf->msd = digit;
+    }
+    buf->data[digit] ++;
+}
+
+const char *istr_str(struct istr *buf) {
+    return &buf->data[ buf->msd ];
 }
 
 int main(int argc, char **argv) {
     struct buffer outbuf;
     outbuf.pos = 0;
+
+    struct istr itoa;
+    istr_init(&itoa);
 
     int trigger1 = 3;
     int trigger2 = 5;
@@ -57,11 +77,12 @@ int main(int argc, char **argv) {
             flag = 1;
         }
         if (!flag) {
-            const char *s = itoa(i, 10);
-            append(&outbuf, s);
+            append(&outbuf, istr_str(&itoa));
         }
 
         append(&outbuf, "\n");
+
+        istr_inc(&itoa);
         i++;
     }
     flush(&outbuf);
