@@ -6,6 +6,20 @@ char outbuf[4096];
 const char fizz[] = "fizz";
 const char buzz[] = "buzz";
 
+void flush(char *buf, int *buflen, char **bufptr) {
+    write(1, buf, *buflen);
+    *buflen = 0;
+    *bufptr = buf;
+}
+
+char *append(const char *buf, int *buflen, char *bufptr) {
+    while (*buf) {
+        *bufptr++ = *buf++;
+        (*buflen)++;
+    }
+    return bufptr;
+}
+
 char _itoabuf[10];
 char *itoa(int i, int radix) {
     char *p = _itoabuf + sizeof(_itoabuf);
@@ -29,37 +43,24 @@ int main(int argc, char **argv) {
         int flag = 0;
 
         if (i == trigger1) {
-            const char *s = fizz;
-            while (*s) {
-                *p++ = *s++;
-                plen++;
-            }
+            p = append(fizz, &plen, p);
 
             trigger1 += 3;
             flag = 1;
         }
         if (i == trigger2) {
-            const char *s = buzz;
-            while (*s) {
-                *p++ = *s++;
-                plen++;
-            }
+            p = append(buzz, &plen, p);
 
             trigger2 += 5;
             flag = 1;
         }
         if (!flag) {
             const char *s = itoa(i, 10);
-            while (*s) {
-                *p++ = *s++;
-                plen++;
-            }
+            p = append(s, &plen, p);
         }
 
-        *p++ = '\n';
-        plen++;
+        p = append("\n", &plen, p);
         i++;
     }
-    write(1, outbuf, plen);
-
+    flush(outbuf, &plen, &p);
 }
