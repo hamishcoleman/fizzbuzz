@@ -7,7 +7,6 @@ char outbuf[4096];
 
 const char fizz[] = "fizz";
 const char buzz[] = "buzz";
-const char nl[] = "\n";
 
 char _itoabuf[10];
 char *itoa(int i, int *digits, int radix) {
@@ -32,18 +31,23 @@ int main(int argc, char **argv) {
 
     while(i <= 101) {
         int flag = 0;
+
         if (i == trigger1) {
-            memcpy(p, fizz, sizeof(fizz)-1);
-            p += sizeof(fizz)-1;
-            plen += sizeof(fizz)-1;
+            const char *s = fizz;
+            while (*s) {
+                *p++ = *s++;
+                plen++;
+            }
 
             trigger1 += 3;
             flag = 1;
         }
         if (i == trigger2) {
-            memcpy(p, buzz, sizeof(buzz)-1);
-            p += sizeof(buzz)-1;
-            plen += sizeof(buzz)-1;
+            const char *s = buzz;
+            while (*s) {
+                *p++ = *s++;
+                plen++;
+            }
 
             trigger2 += 5;
             flag = 1;
@@ -56,6 +60,7 @@ int main(int argc, char **argv) {
             p += digits;
             plen += digits;
         }
+
         *p++ = '\n';
         plen++;
         i++;
