@@ -1,7 +1,5 @@
 
 #include <unistd.h>
-#include <stdlib.h>
-#include <string.h>
 
 char outbuf[4096];
 
@@ -9,14 +7,12 @@ const char fizz[] = "fizz";
 const char buzz[] = "buzz";
 
 char _itoabuf[10];
-char *itoa(int i, int *digits, int radix) {
+char *itoa(int i, int radix) {
     char *p = _itoabuf + sizeof(_itoabuf);
     *p = 0;
-    *digits = 0;
     do {
         *--p = i%radix + '0'; // FIXME radix>10
         i /= radix;
-        (*digits) ++;
     } while(i);
     return p;
 }
@@ -53,12 +49,11 @@ int main(int argc, char **argv) {
             flag = 1;
         }
         if (!flag) {
-            int digits;
-            char *a = itoa(i,&digits,10);
-
-            memcpy(p, a, digits);
-            p += digits;
-            plen += digits;
+            const char *s = itoa(i, 10);
+            while (*s) {
+                *p++ = *s++;
+                plen++;
+            }
         }
 
         *p++ = '\n';
@@ -66,4 +61,5 @@ int main(int argc, char **argv) {
         i++;
     }
     write(1, outbuf, plen);
+
 }
