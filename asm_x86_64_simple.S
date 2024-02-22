@@ -1,3 +1,6 @@
+// Fizzbuzz implemented with simple accumulators
+//
+// SPDX-License-Identifier: GPL-2.0-only
     .text
     .globl  main
     .type   main, @function

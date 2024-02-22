@@ -1,3 +1,6 @@
+// Fizzbuzz implemented with simple accumulators and no division
+//
+// SPDX-License-Identifier: GPL-2.0-only
     .text
 
 fizz_s:

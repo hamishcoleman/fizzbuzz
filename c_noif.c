@@ -1,5 +1,8 @@
 /*
- * FizzBuzz implemented in standard C using the most straightforward method
+ * FizzBuzz implemented in standard C but with "no if statements"
+ * (Though I feel that the while loops are cheating)
+ *
+ * SPDX-License-Identifier: GPL-2.0-only
  */
 
 #include <stdio.h>

@@ -1,3 +1,10 @@
+/*
+ * What if we needed to implement fizzbuzz without constantly slowing down
+ * for stdio?
+ *
+ * SPDX-License-Identifier: GPL-2.0-only
+ *
+ */
 
 #include <unistd.h>
 

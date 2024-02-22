@@ -1,5 +1,8 @@
 /*
- * FizzBuzz implemented in standard C using the most straightforward method
+ * FizzBuzz implemented in standard C using simple accumulators and no
+ * division
+ *
+ * SPDX-License-Identifier: GPL-2.0-only
  */
 
 #include <stdio.h>

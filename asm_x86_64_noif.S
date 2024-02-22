@@ -1,3 +1,11 @@
+// Fizzbuzz implemented without any "if" statements.
+// For assembly language, I've decided that all forms of jumps are considered
+// if statements.
+//
+// I'm a little unhappy with the loop statement, but figured it was better
+// than playing ROP tricks or unrolling the whole loop
+//
+// SPDX-License-Identifier: GPL-2.0-only
     .text
     .globl  main
     .type   main, @function

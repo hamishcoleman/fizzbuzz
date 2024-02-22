@@ -1,3 +1,6 @@
+// Fizzbuzz implemented using division remainders
+//
+// SPDX-License-Identifier: GPL-2.0-only
     .text
     .globl  main
     .type   main, @function
