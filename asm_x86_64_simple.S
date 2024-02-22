@@ -15,6 +15,13 @@ nl_s:
         .string "\n"
 
 main:
+    .cfi_startproc
+    pushq %rbp
+    .cfi_def_cfa_offset 16
+    .cfi_offset 6, -16
+    movq %rsp, %rbp
+    .cfi_def_cfa_register 6
+
     mov $1, %rbx
     mov $3, %r12
     mov $5, %r13
@@ -63,7 +70,10 @@ next:
 
 out:
     xor %eax, %eax
+    leave
+    .cfi_def_cfa 7, 8
     ret
+    .cfi_endproc
 
 
 
