@@ -22,8 +22,8 @@ main:
 loop:
     // assume we just print the number
     lea int_s(%rip), %rdi
-    mov %rbx, %rsi 
-  
+    mov %rbx, %rsi
+
     xor %r14, %r14
 
     mov %rbx, %rax
@@ -51,7 +51,7 @@ just_buzz:
     lea buzz_s(%rip), %rdi
 
 print_it:
-    xor %eax, %eax 
+    xor %eax, %eax
     call printf
 
 next:

@@ -27,8 +27,8 @@ main:
 
 loop:
     lea int_s(%rip), %rdi
-    mov %rbx, %rsi 
-    xor %eax, %eax 
+    mov %rbx, %rsi
+    xor %eax, %eax
     mov $1, %r8
     mov $2, %r9
 
@@ -55,7 +55,7 @@ loop:
     // check fizzbuzz
     lea fizzbuzz_s(%rip), %r14
     cmp %r8, %r9
-    cmove %r14, %rdi 
+    cmove %r14, %rdi
 
     call printf
 

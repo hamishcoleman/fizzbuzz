@@ -28,7 +28,7 @@ loop:
     add $3, %r12
 
     lea fizz_s(%rip), %rdi
-    xor %eax, %eax 
+    xor %eax, %eax
     call printf
     inc %r14
 
@@ -39,7 +39,7 @@ check_buzz:
     add $5, %r13
 
     lea buzz_s(%rip), %rdi
-    xor %eax, %eax 
+    xor %eax, %eax
     call printf
     inc %r14
 
@@ -48,13 +48,13 @@ print_num:
     jne next
 
     lea int_s(%rip), %rdi
-    mov %rbx, %rsi 
-    xor %eax, %eax 
+    mov %rbx, %rsi
+    xor %eax, %eax
     call printf
 
 next:
     lea nl_s(%rip), %rdi
-    xor %eax, %eax 
+    xor %eax, %eax
     call printf
 
     inc %rbx
