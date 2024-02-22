@@ -16,18 +16,28 @@ BUILD_DEPENDS := \
 CFLAGS := -g -coverage
 ASFLAGS := -g -coverage
 
-IMPLEMENTATIONS := \
-    c_div \
-    c_fast \
-    c_noif \
-    c_simple \
-    python_noif \
-    python_simple \
+SCRIPT += python_noif
+SCRIPT += python_simple
 
-#IMPLEMENTATIONS += asm_arm64_simple
-IMPLEMENTATIONS += asm_x86_64_div
-IMPLEMENTATIONS += asm_x86_64_noif
-IMPLEMENTATIONS += asm_x86_64_simple
+COMPILE += c_div
+COMPILE += c_fast
+COMPILE += c_noif
+COMPILE += c_simple
+
+ASM_X86_64 += asm_x86_64_div
+ASM_X86_64 += asm_x86_64_noif
+ASM_X86_64 += asm_x86_64_simple
+ASM_ARM64 += asm_arm64_simple
+
+ASM += $(ASM_X86_64)
+#ASM += $(ASM_ARM64)
+
+IMPLEMENTATIONS += $(ASM)
+IMPLEMENTATIONS += $(COMPILE)
+IMPLEMENTATIONS += $(SCRIPT)
+
+CLEANFILES += $(ASM)
+CLEANFILES += $(COMPILE)
 
 # TODO: The implicit rules should cover this ?
 asm_arm64_simple: asm_arm64_simple.S
