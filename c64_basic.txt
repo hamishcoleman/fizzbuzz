@@ -1,1 +1,11 @@
-https://rachelbythebay.com/w/2012/10/13/fizzbuzz/
+REM https://rachelbythebay.com/w/2012/10/13/fizzbuzz/
+
+10 FOR I = 1 TO 100
+20 A=0
+30 IF(I/3) = INT(I/3) THEN A=A OR 1
+40 IF(I/5) = INT(I/5) THEN A=A OR 2
+50 IF A AND 1 THEN PRINT "FIZZ";
+60 IF A AND 2 THEN PRINT "BUZZ";
+70 IF A = 0 THEN PRINT I;
+80 PRINT
+90 NEXT

@@ -1,1 +1,229 @@
-https://aphyr.com/posts/353-rewriting-the-technical-interview
+;;; https://aphyr.com/posts/353-rewriting-the-technical-interview
+
+(defn fixed-point
+  [f x]
+  (let [x' (f x)]
+    (if (= x x')
+      x
+      (recur f x'))))
+
+(defn rewrite-seq-1
+  ([f term]
+   (rewrite-seq-1 f [] term))
+  ([f scanned term]
+   (if (seq term)
+     (if-let [term' (f term)]
+       (into scanned term')
+       (recur f
+              (conj scanned (first term))
+              (next term)))
+     scanned)))
+
+(defn rewrite-term-1
+  [f term]
+  (cond (map-entry? term) term
+        (vector?    term) (vec (rewrite-seq-1 f term))
+        (seq?       term) (if (seq term)
+                            (seq (rewrite-seq-1 f term))
+                            term)
+        :else             (or (f term) term)))
+
+(require '[clojure.walk :refer [postwalk]])
+
+(defn rewrite-walk-1
+  [f term]
+  (postwalk (partial rewrite-term-1 f) term))
+
+(defn rewrite-walk
+  [term f]
+  (fixed-point (partial rewrite-walk-1 f) term))
+
+(defn single-rule
+  [[[guard term] body]]
+  `(fn [~term]
+     (when (~guard ~term)
+       ~body)))
+
+(defn seq-rule
+  [[bindings body]]
+  (let [[bindings [_ more]] (split-with (complement #{'&}) bindings)
+        more-sym            (or more (gensym 'more))
+        term                (gensym 'term)
+        pairs               (partition 2 bindings)
+        guards              (map first pairs)
+        names               (map second pairs)
+        guard-exprs         (map-indexed (fn [i guard]
+                                           `(~guard (nth ~term ~i)))
+                                         guards)]
+    `(fn [~term]
+       (try
+         (when (and (sequential? ~term)
+                    (<= ~(count guards) (count ~term))
+                    ~@guard-exprs)
+           (let [[~@names ~'& ~more-sym] ~term]
+             ~(if more
+                body
+                `(concat ~body ~more-sym))))))))
+
+(defn rule
+  [rule]
+  (if (vector? (first rule))
+    (seq-rule rule)
+    (single-rule rule)))
+
+(defmacro rewrite
+  [expr & rules]
+  (let [rules   (partition 2 rules)
+        matches (map rule rules)]
+    `(let [rules# [~@matches]]
+       (reduce rewrite-walk ~expr rules#))))
+
+(defrecord FnCall [fun args])
+
+(defn a
+  [type]
+  (fn [term]
+    (instance? type term)))
+
+(defmacro c
+  [& exprs]
+  (rewrite `(do ~@exprs)
+           [symbol? fun, seq? args] [(FnCall. fun args)]
+           ((a FnCall) fc)          (cons (:fun fc) (:args fc))))
+
+(def infix (into '{%  mod
+                   == =}
+                 (map (juxt identity identity)
+                      '[< <= > >= + - / *])))
+
+(def postfixes {"++" inc
+                "--" dec})
+
+(defn postfix-sym
+  [x]
+  (when (symbol? x)
+    (when-let [p (first (filter (partial str/ends-with? (name x))
+                                (keys postfixes)))]
+      (list (postfixes p)
+            (symbol (str/replace (name x) p ""))))))
+
+(defmacro c
+  [& exprs]
+  (rewrite `(do ~@exprs)
+           [symbol? fun, seq? args]  [(FnCall. fun args)]
+           [any? a, infix f, any? b] [(FnCall. (infix f) [a b])]
+           (postfix-sym x)           (postfix-sym x)
+           ((a FnCall) fc)           (cons (:fun fc) (:args fc))))
+
+(defmacro c
+  [& exprs]
+  (rewrite `(do ~@exprs)
+           [symbol? fun, seq? args]  [(FnCall. fun args)]
+           [any? a, infix f, any? b] [(FnCall. (infix f) [a b])]
+           (postfix-sym x)           (postfix-sym x)
+
+           [symbol? var, #{'=} _, any? rhs, & more]
+           [`(let [~var ~rhs] ~@more)]
+
+           ((a FnCall) fc)           (cons (:fun fc) (:args fc))))
+
+(defrecord Cond   [branches])
+(defrecord Elsif  [test body])
+
+(defn braces
+  [m]
+  (cons 'do (mapcat identity m)))
+
+(defmacro c
+  [& exprs]
+  (rewrite `(do ~@exprs)
+           [#{'else} _, #{'if} _, seq? test, map? body]
+           [(Elsif. `(do ~@test) (braces body))]
+
+           [#{'if} _, seq? test, map? t]
+           [(Cond. [`(do ~@test) (braces t)])]
+
+           [(a Cond) cond, (a Elsif) elsif]
+           [(update cond :branches conj (:test elsif) (:body elsif))]
+
+           [(a Cond) cond, #{'else} _, map? body]
+           [(update cond :branches conj :else (braces body))]
+           ...
+           ((a Cond) c)              `(cond ~@(:branches c))))
+
+(defn spaced-sym
+  [x]
+  (when (symbol? x)
+    (let [parts (str/split (name x) #" ")]
+      (when (< 1 (count parts))
+        (map symbol parts)))))
+
+(defmacro c
+  [& exprs]
+  (rewrite `(do ~@exprs)
+           [spaced-sym s]   (spaced-sym s)
+           ...
+           ['#{return ;} _]          nil))
+
+(defn gen-for
+  [exprs body]
+  (let [[[var _ init] test change] (remove '#{(;)} (partition-by '#{;} exprs))
+        body (mapcat identity body)]
+    `(loop([~var ~init
+            ret# nil]
+       if (~@test) {
+         recur(do(~@change), do(~@body))
+       } ~'else {
+         ~'return ret#
+       }))))
+
+(defmacro c
+  [& exprs]
+  (rewrite `(do ~@exprs)
+           [#{'for} _, seq? expr, map? body] (gen-for expr body)
+
+           [spaced-sym s]                    (spaced-sym s)
+
+           [#{'else} _, #{'if} _, seq? test, map? body]
+           [(Elsif. `(do ~@test) (braces body))]
+
+           [#{'if} _, seq? test, map? t]
+           [(Cond. [`(do ~@test) (braces t)])]
+
+           [(a Cond) cond, (a Elsif) elsif]
+           [(update cond :branches conj (:test elsif) (:body elsif))]
+
+           [(a Cond) cond, #{'else} _, map? body]
+           [(update cond :branches conj :else (braces body))]
+
+           [symbol? fun, seq? args]  [(FnCall. fun args)]
+           [any? a, infix f, any? b] [(FnCall. (infix f) [a b])]
+           (postfix-sym x)           (postfix-sym x)
+
+           [symbol? var, #{'=} _, any? rhs, & more]
+           [`(let [~var ~rhs] ~@more)]
+
+           ((a FnCall) fc)           (cons (:fun fc) (:args fc))
+           ((a Cond) c)              `(cond ~@(:branches c))
+           ['#{return ;} _]          nil))
+
+;;; user=> (c
+;;;   for (i = 1 ; i < 101 ; i++) {
+;;;     if (i % 15 == 0) {
+;;;       println("FizzBuzz");
+;;;     } else if (i % 3 == 0) {
+;;;       println("Fizz");
+;;;     } else if (i % 5 == 0) {
+;;;       println("Buzz");
+;;;     } else {
+;;;       println(i);
+;;;     };
+;;;   }
+;;; )
+;;; 1
+;;; 2
+;;; Fizz
+;;; 4
+;;; Buzz
+;;; Fizz
+;;; ...
