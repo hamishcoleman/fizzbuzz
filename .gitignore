@@ -13,3 +13,4 @@ c_simple
 *.out
 *.gcda
 *.gcno
+*.c.gcov
