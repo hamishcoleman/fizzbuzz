@@ -1,35 +1,65 @@
 /*
  * FizzBuzz implemented in standard C but with "no if statements"
- * (Though I feel that the while loops are cheating)
+ * (since while and for loops are just fancy if statements, I have not used
+ * them and either)
  *
  * SPDX-License-Identifier: GPL-2.0-only
  */
 
 #include <stdio.h>
 
+const char *str_fizz[] = {
+    "fizz",
+    "",
+    "",
+};
+const char *str_buzz[] = {
+    "buzz",
+    "",
+    "",
+    "",
+    "",
+};
+const char *str_int[] = {
+    "%i\n",
+    "\n",
+    "\n",
+};
+
+int i;
+
+static inline void do_one() {
+    i = i + 1;
+    int printed = 0;
+    printed += printf(str_fizz[i % 3]);
+    printed += printf(str_buzz[i % 5]);
+    printf(str_int[printed / 4],i);
+}
+
+#define DO_TEN() { \
+    do_one(); \
+    do_one(); \
+    do_one(); \
+    do_one(); \
+    do_one(); \
+    do_one(); \
+    do_one(); \
+    do_one(); \
+    do_one(); \
+    do_one(); \
+} while(0)
+
 int main(int argc, char **argv) {
-    int i = 0;
-    int next_fizz = 3;
-    int next_buzz = 5;
+    i = 0;
 
-    while(i < 100) {
-        i++;
-
-        while ((i < next_fizz) && (i < next_buzz)) {
-            printf("%i\n",i);
-            i++;
-        }
-
-        while (i == next_fizz) {
-            printf("fizz");
-            next_fizz += 3;
-        }
-
-        while (i == next_buzz) {
-            printf("buzz");
-            next_buzz += 5;
-        }
-
-        printf("\n");
-    }
+    DO_TEN();
+    DO_TEN();
+    DO_TEN();
+    DO_TEN();
+    DO_TEN();
+    DO_TEN();
+    DO_TEN();
+    DO_TEN();
+    DO_TEN();
+    DO_TEN();
 }
