@@ -1,0 +1,15 @@
+
+# Compiled code
+asm_x86_64_div
+asm_x86_64_noif
+asm_x86_64_simple
+c_div
+c_fast
+c_noif
+c_simple
+
+
+# Generated outputs
+*.out
+*.gcda
+*.gcno
