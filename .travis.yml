@@ -1,0 +1,20 @@
+sudo: false
+dist: trusty
+
+language: c
+
+python:
+    - 2.7
+
+# install:
+#    - pip install codecov
+# after_success:
+#    - codecov
+
+script:
+    - make
+    - make c_simple.c.gcov
+    - make python_simple.cov
+
+after_success:
+    - bash <(curl -s https://codecov.io/bash)
