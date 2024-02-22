@@ -1,3 +1,10 @@
+/*
+ * What if we needed to implement fizzbuzz without constantly slowing down
+ * for stdio?
+ *
+ * SPDX-License-Identifier: GPL-2.0-only
+ *
+ */
 
 #include <unistd.h>
 
@@ -56,12 +63,13 @@ int main(int argc, char **argv) {
 
     struct istr itoa;
     istr_init(&itoa);
+    istr_inc(&itoa);
 
     int trigger1 = 3;
     int trigger2 = 5;
-    int i = 0;
+    int i = 1;
 
-    while(i <= 101) {
+    while(i <= 100) {
         int flag = 0;
 
         if (i == trigger1) {
