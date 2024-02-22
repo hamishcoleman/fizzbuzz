@@ -42,6 +42,7 @@ CLEANFILES += $(COMPILE)
 # TODO: The implicit rules should cover this ?
 asm_arm64_simple: asm_arm64_simple.S
 asm_x86_64_div: asm_x86_64_div.S
+asm_x86_64_noif: asm_x86_64_noif.S
 asm_x86_64_simple: asm_x86_64_simple.S
 c_div: c_div.c
 c_fast: c_fast.c
