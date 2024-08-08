@@ -23,6 +23,7 @@ COMPILE += c_div
 COMPILE += c_fast
 COMPILE += c_noif
 COMPILE += c_simple
+# COMPILE += c_longhand # Requires manual editing before compiling
 
 ASM_X86_64 += asm_x86_64_div
 ASM_X86_64 += asm_x86_64_noif
