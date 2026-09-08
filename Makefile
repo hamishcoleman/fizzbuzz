@@ -36,6 +36,7 @@ ASM += $(ASM_X86_64)
 IMPLEMENTATIONS += $(ASM)
 IMPLEMENTATIONS += $(COMPILE)
 IMPLEMENTATIONS += $(SCRIPT)
+IMPLEMENTATIONS += python1024
 
 CLEANFILES += $(ASM)
 CLEANFILES += $(COMPILE)
@@ -64,6 +65,17 @@ python_simple.cov: .coverage
 	python-coverage report >$@
 	cat $@
 CLEANFILES += python_simple.cov
+
+python1024: python1024.c
+	gcc -std=gnu89 -w $< -o $@
+CLEANFILES += python1024
+
+# Who starts their fizzbuzz at zero?!
+# Either way, I'm not rewriting the interpreter to add features to range()
+python1024.out: python1024 python1024.py
+	./python1024 < python1024.py >$@.tmp; true
+	diff -u Expected0.txt $@.tmp
+	mv $@.tmp $@
 
 %.out: %
 	./$< >$@.tmp
